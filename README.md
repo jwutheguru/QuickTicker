@@ -1,6 +1,6 @@
 # QuickTicker
 
-Simple plugin for displaying and scrolling messages and html across an element.
+Simple plugin for displaying and scrolling messages and html contents across an element.
 
 ## Installation
 
