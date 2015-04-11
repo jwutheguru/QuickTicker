@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>QuickTicker Demo</title>
+		<script src="http://code.jquery.com/jquery-1.11.2.min.js" type="text/javascript"></script>
+		<script src="../quickticker.js" type="text/javascript"></script>
+		<script src="script.js" type="text/javascript"></script>
+		<style type="text/css">
+			body {
+				margin: 0;
+				padding: 0;
+				font-size: 24px;
+				background-color: lightgray;
+			}
+
+			#content {
+				position: absolute;
+				left: 50%;
+				margin: 0 0 0 -500px;
+				padding: 100px 0 0 0;
+				width: 1000px;
+				height: 100%;
+				background-color: whitesmoke;
+			}
+
+			#ticker {
+				width: 100%;
+				height: 50px;
+				line-height: 50px;
+				background-color: white;
+			}
+
+			#addMessage {
+				display: block;
+				margin: 40px auto 0;
+				width: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="content">
+	        <div id="ticker"></div>
+
+	        <button id="addMessage">Add Message</button>
+		</div>
+	</body>
+</html>
