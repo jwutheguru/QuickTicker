@@ -2,6 +2,8 @@
 
 Simple plugin for displaying and scrolling messages and html contents across an element.
 
+An example can be seen here: [http://jsfiddle.net/jwutheguru/pej1bqgm/](http://jsfiddle.net/jwutheguru/pej1bqgm/)
+
 ## Installation
 
 Simply place quickerticker.js on your page.
