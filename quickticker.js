@@ -11,23 +11,38 @@
     "use strict";
 
     var pluginName = "quickTicker";
+
     var defaults = {
-        duration: 5000,
-        spacing: 30,
-        pauseOnHover: false,
+        duration: 5000, // duration in ms
+        spacing: 30, // pixel
+        pauseOnHover: true,
         allowDuplicates: true
     };
 
+    /**
+     * quickTicker plugin object
+     * @param {HTMLElement} element The element the plugin is initialized on
+     * @param {object} options quickTicker configuration options
+     */
     function Plugin(element, options) {
-        var self = this;
-        var currentlyPaused = false;
-        var animationQueue = [];
-        var itemContents = [];
-        var items = [];
-
         this.element = element;
         this.$element = $(element);
         this.options = $.extend({}, defaults, options);
+
+        var self = this;
+
+        var tickerWidth = this.$element.innerWidth();
+
+        var currentlyPaused = false;
+
+        // {Array[function]} functions of jQuery.animate calls (used when new items are added while ticker is paused)
+        var animationQueue = [];
+
+        // {Array[jQuery object]} ticker items being animated
+        var tickerItems = [];
+
+        // {Array[string]} ticker items' contents (used for checking for duplicates)
+        var tickerItemContents = []; 
 
         function initialize() {
             self.$element.css({
@@ -37,33 +52,20 @@
 
             if (self.options.pauseOnHover) {
                 self.$element.hover(function(e) {
-                    currentlyPaused = true;
-
-                    $.each(items, function(index, item) {
-                        $(item).stop();
-                    });
+                    self.pause();
                 }, function(e) {
-                    currentlyPaused = false;
-
-                    $.each(items, function(index, item) {
-                        resumeAnimation($(item));
-                    });
-
-                    while (animFunc = animationQueue.pop()) {
-                        animFunc();
-                    }
+                    self.resume();
                 });
             }
         }
 
         function handleItemAnimation(item) {
-            var itemWidth = item.outerWidth();            
-            var tickerWidth = self.$element.innerWidth();
+            var itemWidth = item.outerWidth();
 
-            var prevItem = self.$element.find('> span:last'); // see if a previous item already exists
+            var prevItem = tickerItems[tickerItems.length - 1]; // see if a previous item already exists
             var prevItemRightBoundPosition = 0;
             
-            if (prevItem.length > 0) // if previous item exists, get it's rightmost position plus spacing
+            if (prevItem) // if previous item exists, get it's rightmost position plus spacing
                 prevItemRightBoundPosition = prevItem.position().left + prevItem.outerWidth() + self.options.spacing;
 
             var startPosition = Math.max(tickerWidth, prevItemRightBoundPosition);            
@@ -78,8 +80,8 @@
                     'linear', 
                     function() { 
                         $(this).remove();
-                        itemContents.shift();
-                        items.shift();
+                        tickerItemContents.shift();
+                        tickerItems.shift();
                     });
             });
 
@@ -88,10 +90,28 @@
             }
         }
 
-        initialize();
+        function resumeAnimation(item) {
+            var itemWidth = item.outerWidth();
+            var currentPosition = item.position().left;
+            var messageTravelDistance = currentPosition - (-1 * itemWidth);
+            var speedFactor = messageTravelDistance / tickerWidth;
 
+            item.animate({ "left": (-1 * itemWidth) }, 
+                speedFactor * self.options.duration, 
+                'linear', 
+                function() { 
+                    $(this).remove();
+                    tickerItemContents.shift();
+                    tickerItems.shift();
+                });
+        }
+
+        /**
+         * Adds a new item to be displayed and scrolled in quickTicker
+         * @param {string} content The html content to be displayed and scrolled
+         */
         Plugin.prototype.add = function(content) {
-            if (!this.options.allowDuplicates && itemContents.indexOf(content) > -1)
+            if (!this.options.allowDuplicates && tickerItemContents.indexOf(content) > -1)
                 return;
 
             var newItem = $('<span>').html(content).css({ // create the new item
@@ -101,12 +121,45 @@
                 "text-overflow": "clip",
             });
 
-            handleItemAnimation(newItem);
             this.$element.append(newItem);
+            handleItemAnimation(newItem);
 
-            itemContents.push(content);
-            items.push(newItem);
+            tickerItemContents.push(content);
+            tickerItems.push(newItem);
         };
+
+        /**
+         * Pauses the quickTicker marquee
+         */
+        Plugin.prototype.pause = function() {
+            if (currentlyPaused) return;
+
+            currentlyPaused = true;
+
+            $.each(tickerItems, function(index, item) {
+                $(item).stop();
+            });
+        };
+
+        /**
+         * Resumes the quickTicker marquee
+         */
+        Plugin.prototype.resume = function() {
+            if (!currentlyPaused) return;
+
+            currentlyPaused = false;
+
+            $.each(tickerItems, function(index, item) {
+                resumeAnimation($(item));
+            });
+
+            while (animationQueue.length) {
+                animationQueue.pop()();
+            }
+        };
+
+        // Starting point
+        initialize();
     }
 
     $.fn[pluginName] = function(option) {

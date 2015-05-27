@@ -31,21 +31,27 @@ QuickTicker instance can be assigned to a variable, where it can then call quick
 
     var ticker = $('#myTicker').quickTicker({
 	    duration: 10000,
-	    spacing: 50
+	    spacing: 50,
+        pauseOnHover: true,
+        allowDuplicates: false
     }).data('quickTicker');
     
     ticker.add('<strong>My new message!</strong>');
+
 See Methods section for more details.
 
 ## Configuration
 
  - duration - [default: 5000] The time (in milliseconds) it takes for each item to scroll across the quickTicker instance element. QuickTicker internally adjusts duration based on the item width (i.e. very short vs very long texts).
  - spacing - [default: 30] The spacing (in pixels) between each item.
+ - pauseOnHover - [default: true] When true, hovering over the quickTicker html element will pause the quickTicker scrolling marquee.
  - allowDuplicate - [default: true] When set to false, new items will not be added if a copy of it is currently in queue in quickTicker
 
 ## Methods
 
  - add(content) - Add 'content' to the queue in the quickTicker instance. 'content' may be plain text or html string.
+ - pause() - Pauses the quickTicker marquee.
+ - resume() - Resumes the quickTicker marquee.
 
 ## License
 

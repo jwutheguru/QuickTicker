@@ -19,4 +19,12 @@ $(function() {
         var content = items[Math.floor(Math.random() * items.length)];
         quickTicker.add(content);
     });
+
+    // setTimeout(function() {
+    //     quickTicker.pause();
+
+    //     setTimeout(function() {
+    //         quickTicker.resume();
+    //     }, 3000);
+    // }, 3000);
 });
