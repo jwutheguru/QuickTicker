@@ -2,7 +2,6 @@
     QuickTicker
     ============ 
     Simple plugin for displaying and scrolling messages and html contents across an element.
-
     (c) 2015 J. "Eric" Wu
     Released under the MIT License: http://www.opensource.org/licenses/mit-license.php
 */
@@ -34,9 +33,10 @@
         var tickerWidth = this.$element.innerWidth();
 
         var currentlyPaused = false;
+        var pausedByUser = false;
 
         // {Array[function]} functions of jQuery.animate calls (used when new items are added while ticker is paused)
-        var animationQueue = [];
+        var animationFunctionQueue = [];
 
         // {Array[jQuery object]} ticker items being animated
         var tickerItems = [];
@@ -52,9 +52,9 @@
 
             if (self.options.pauseOnHover) {
                 self.$element.hover(function(e) {
-                    self.pause();
+                    pauseQuickTicker();
                 }, function(e) {
-                    self.resume();
+                    resumeQuickTicker();
                 });
             }
         }
@@ -74,7 +74,7 @@
 
             item.css({ "left": startPosition });
 
-            animationQueue.push(function() {
+            animationFunctionQueue.push(function() {
                 item.animate({ "left": (-1 * itemWidth) }, 
                     speedFactor * self.options.duration, 
                     'linear', 
@@ -85,14 +85,14 @@
                     });
             });
 
-            if (!currentlyPaused) {
-                animationQueue.pop()();
+            if (!currentlyPaused && !pausedByUser) {
+                animationFunctionQueue.pop()();
             }
         }
 
         function resumeAnimation(item) {
             var itemWidth = item.outerWidth();
-            var currentPosition = item.position().left;
+            var currentPosition = parseInt(item.css('left'));
             var messageTravelDistance = currentPosition - (-1 * itemWidth);
             var speedFactor = messageTravelDistance / tickerWidth;
 
@@ -104,6 +104,33 @@
                     tickerItemContents.shift();
                     tickerItems.shift();
                 });
+        }
+
+        function pauseQuickTicker(calledByUser) {
+            if (currentlyPaused) return;
+
+            currentlyPaused = true;
+            if (calledByUser) pausedByUser = true;
+
+            $.each(tickerItems, function(index, item) {
+                $(item).stop(true); // clear animation queue to prevent multiple animations
+            });
+        }
+
+        function resumeQuickTicker(calledByUser) {
+            if (!currentlyPaused || 
+                (pausedByUser && !calledByUser)) return; // if a user explicitly called quickTicker.pause(), don't resume. Unless the resume call is made by user.
+
+            currentlyPaused = false;
+            if (calledByUser) pausedByUser = false;
+
+            $.each(tickerItems, function(index, item) {
+                resumeAnimation($(item));
+            });
+
+            while (animationFunctionQueue.length) {
+                animationFunctionQueue.pop()();
+            }
         }
 
         /**
@@ -132,30 +159,14 @@
          * Pauses the quickTicker marquee
          */
         Plugin.prototype.pause = function() {
-            if (currentlyPaused) return;
-
-            currentlyPaused = true;
-
-            $.each(tickerItems, function(index, item) {
-                $(item).stop();
-            });
+            pauseQuickTicker(true);
         };
 
         /**
          * Resumes the quickTicker marquee
          */
         Plugin.prototype.resume = function() {
-            if (!currentlyPaused) return;
-
-            currentlyPaused = false;
-
-            $.each(tickerItems, function(index, item) {
-                resumeAnimation($(item));
-            });
-
-            while (animationQueue.length) {
-                animationQueue.pop()();
-            }
+            resumeQuickTicker(true);
         };
 
         // Starting point

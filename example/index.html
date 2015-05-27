@@ -31,18 +31,29 @@
                 background-color: white;
             }
 
-            #addMessage {
-                display: block;
-                margin: 40px auto 0;
-                width: 100px;
+            .button-row {
+                position: absolute;
+                left: 50%;
+                width: 450px;
+                margin: 20px 0 0 -225px;
+            }
+
+            button {
+                display: inline-block;
+                margin: 0 10px;
+                width: 120px;
             }
         </style>
     </head>
     <body>
         <div id="content">
             <div id="ticker"></div>
-
-            <button id="addMessage">Add Message</button>
+            
+            <div class="button-row">
+                <button id="pauseTicker">Pause Ticker</button>
+                <button id="addMessage">Add Message</button>
+                <button id="resumeTicker">Resume Ticker</button>
+            </div>
         </div>
     </body>
 </html>

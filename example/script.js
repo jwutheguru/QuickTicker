@@ -4,7 +4,7 @@ $(function() {
         duration: 5000,
         spacing: 50,
         pauseOnHover: true,
-        allowDuplicates: false
+        allowDuplicates: true
     }).data('quickTicker');
 
     var items = [
@@ -18,6 +18,14 @@ $(function() {
     $('#addMessage').click(function(e) {
         var content = items[Math.floor(Math.random() * items.length)];
         quickTicker.add(content);
+    });
+
+    $('#pauseTicker').click(function(e) {
+        quickTicker.pause();
+    });
+
+    $('#resumeTicker').click(function(e) {
+        quickTicker.resume();
     });
 
     // setTimeout(function() {
