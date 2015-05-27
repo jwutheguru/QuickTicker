@@ -14,37 +14,85 @@
     var defaults = {
         duration: 5000,
         spacing: 30,
-        allowDuplicates: true,
+        pauseOnHover: false,
+        allowDuplicates: true
     };
 
     function Plugin(element, options) {
+        var self = this;
+        var currentlyPaused = false;
+        var animationQueue = [];
+        var itemContents = [];
+        var items = [];
+
         this.element = element;
         this.$element = $(element);
         this.options = $.extend({}, defaults, options);
-        this.items = [];
 
-        this.init();
-    }
-
-    Plugin.prototype = {
-        init: function() { 
-            this.$element.css({
+        function initialize() {
+            self.$element.css({
                 "position": "relative",
                 "overflow": "hidden"
             });
-        },
-        add: function(content) {
-            if (!this.allowDuplicates && this.items.indexOf(content) > -1)
-                return;
 
-            this.items.push(content);
-            var self = this;
-            var tickerWidth = this.$element.innerWidth();
-            var prevItem = this.$element.find('> span:last'); // see if a previous item already exists
+            if (self.options.pauseOnHover) {
+                self.$element.hover(function(e) {
+                    currentlyPaused = true;
+
+                    $.each(items, function(index, item) {
+                        $(item).stop();
+                    });
+                }, function(e) {
+                    currentlyPaused = false;
+
+                    $.each(items, function(index, item) {
+                        resumeAnimation($(item));
+                    });
+
+                    while (animFunc = animationQueue.pop()) {
+                        animFunc();
+                    }
+                });
+            }
+        }
+
+        function handleItemAnimation(item) {
+            var itemWidth = item.outerWidth();            
+            var tickerWidth = self.$element.innerWidth();
+
+            var prevItem = self.$element.find('> span:last'); // see if a previous item already exists
             var prevItemRightBoundPosition = 0;
             
             if (prevItem.length > 0) // if previous item exists, get it's rightmost position plus spacing
-                prevItemRightBoundPosition = prevItem.position().left + prevItem.outerWidth() + this.options.spacing;
+                prevItemRightBoundPosition = prevItem.position().left + prevItem.outerWidth() + self.options.spacing;
+
+            var startPosition = Math.max(tickerWidth, prevItemRightBoundPosition);            
+            var messageTravelDistance = startPosition - (-1 * itemWidth); // slow the animation by a factor based on the distance it travels in relation to the ticker width
+            var speedFactor = messageTravelDistance / tickerWidth; 
+
+            item.css({ "left": startPosition });
+
+            animationQueue.push(function() {
+                item.animate({ "left": (-1 * itemWidth) }, 
+                    speedFactor * self.options.duration, 
+                    'linear', 
+                    function() { 
+                        $(this).remove();
+                        itemContents.shift();
+                        items.shift();
+                    });
+            });
+
+            if (!currentlyPaused) {
+                animationQueue.pop()();
+            }
+        }
+
+        initialize();
+
+        Plugin.prototype.add = function(content) {
+            if (!this.options.allowDuplicates && itemContents.indexOf(content) > -1)
+                return;
 
             var newItem = $('<span>').html(content).css({ // create the new item
                 "display": "inline-block",
@@ -53,22 +101,13 @@
                 "text-overflow": "clip",
             });
 
+            handleItemAnimation(newItem);
             this.$element.append(newItem);
-            var newItemWidth = newItem.outerWidth(); // add item and get its width
-            var startPosition = Math.max(tickerWidth, prevItemRightBoundPosition);            
-            var messageTravelDistance = startPosition - (-1 * newItemWidth); // slow the animation by a factor based on the distance it travels in relation to the ticker width
-            var speedFactor = messageTravelDistance / tickerWidth; 
 
-            newItem.css({ "left": startPosition })
-                .animate({ "left": (-1 * newItemWidth) }, 
-                    speedFactor * this.options.duration, 
-                    'linear', 
-                    function() { 
-                        $(this).remove();
-                        self.items.shift();
-                    });
-        }
-    };
+            itemContents.push(content);
+            items.push(newItem);
+        };
+    }
 
     $.fn[pluginName] = function(option) {
         var args = arguments;

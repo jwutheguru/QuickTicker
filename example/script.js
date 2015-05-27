@@ -2,7 +2,9 @@ $(function() {
 
     var quickTicker = $('#ticker').quickTicker({
         duration: 5000,
-        spacing: 50
+        spacing: 50,
+        pauseOnHover: true,
+        allowDuplicates: false
     }).data('quickTicker');
 
     var items = [
