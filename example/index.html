@@ -30,17 +30,14 @@
                 line-height: 50px;
                 background-color: white;
             }
-
-            .button-row {
-                position: absolute;
-                left: 50%;
-                width: 450px;
-                margin: 20px 0 0 -225px;
+            #controls {
+                margin: 20px auto 0;
+                width: 420px;
             }
 
             button {
                 display: inline-block;
-                margin: 0 10px;
+                margin: 0 5px;
                 width: 120px;
             }
         </style>
@@ -49,7 +46,7 @@
         <div id="content">
             <div id="ticker"></div>
             
-            <div class="button-row">
+            <div id="controls">
                 <button id="pauseTicker">Pause Ticker</button>
                 <button id="addMessage">Add Message</button>
                 <button id="resumeTicker">Resume Ticker</button>

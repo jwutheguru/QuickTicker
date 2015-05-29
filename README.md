@@ -22,7 +22,9 @@ Configuration options can be passed on initialization:
 
     $('#myTicker').quickTicker({
 	    duration: 10000, // time (ms) it takes for item to scroll
-	    spacing: 50 // spacing (px) between each item
+	    spacing: 50, // spacing (px) between each item
+        pauseOnHover: true,
+        allowDuplicates: false
     });
 
 See Configuration section for more details.

@@ -27,12 +27,4 @@ $(function() {
     $('#resumeTicker').click(function(e) {
         quickTicker.resume();
     });
-
-    // setTimeout(function() {
-    //     quickTicker.pause();
-
-    //     setTimeout(function() {
-    //         quickTicker.resume();
-    //     }, 3000);
-    // }, 3000);
 });
