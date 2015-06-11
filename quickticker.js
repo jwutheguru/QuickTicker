@@ -12,8 +12,8 @@
     var pluginName = "quickTicker";
 
     var defaults = {
-        duration: 5000, // duration in ms
-        spacing: 30, // pixel
+        duration: 5000, // duration in milliseconds
+        spacing: 30, // spacing in pixels
         pauseOnHover: true,
         allowDuplicates: true
     };
