@@ -35,13 +35,13 @@
         var currentlyPaused = false;
         var pausedByUser = false;
 
-        // {Array[function]} functions of jQuery.animate calls (used when new items are added while ticker is paused)
+        // @typedef {Array[function]} animationFunctionQueue Functions of jQuery.animate calls (used when new items are added while ticker is paused)
         var animationFunctionQueue = [];
 
-        // {Array[jQuery object]} ticker items being animated
+        // @typedef {Array[jQuery object]} tickerItems Ticker items being animated
         var tickerItems = [];
 
-        // {Array[string]} ticker items' contents (used for checking for duplicates)
+        // @typedef {Array[string]} tickerItemContents Ticker items' contents (used for checking for duplicates)
         var tickerItemContents = []; 
 
         function initialize() {
